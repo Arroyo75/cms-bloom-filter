@@ -2,4 +2,4 @@
  * Bloom filter implementation.
  */
 
-package com.arroyo.probalistic.bloom;
+package com.arroyo.probabilistic.bloom;
