@@ -103,19 +103,4 @@ public class BloomFilter {
         }
         return bits;
     }
-
-    public static int nextPrimeNum(int n) {
-        if (n <= 2) return 2;
-        int possible = (n % 2 == 0) ? n + 1 : n;
-        while (!isPrimeNum(possible)) possible += 2;
-        return possible;
-    }
-
-    public static boolean isPrimeNum(int n) {
-        if (n < 2) return false;
-        for (int i = 2; (long) i * i <= n; i++) {
-            if (n % i == 0) return false;
-        }
-        return true;
-    }
 }

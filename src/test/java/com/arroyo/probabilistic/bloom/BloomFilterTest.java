@@ -2,6 +2,7 @@ package com.arroyo.probabilistic.bloom;
 
 import com.arroyo.probabilistic.hash.HashFunction;
 import com.arroyo.probabilistic.hash.HashFunctions;
+import com.arroyo.probabilistic.util.SizingCalculator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -92,10 +93,8 @@ public class BloomFilterTest {
     void falsePositiveRateIsAcceptable() {
         int n = 5000;
         double targetRate = 0.01;
-        double ln2 = Math.log(2);
-        int m = (int) Math.ceil(-(n * Math.log(targetRate)) / (ln2 * ln2));
-        m = BloomFilter.nextPrimeNum(m);
-        int k = (int) Math.round(((double) m / n) * ln2);
+        int m = SizingCalculator.optimalM(n, targetRate);
+        int k = SizingCalculator.optimalK(m, n);
 
         BloomFilter bf3 = BloomFilter.create(m, k);
         for (int i = 0; i < n; i++) {
@@ -117,6 +116,5 @@ public class BloomFilterTest {
                 "False Positive rate " + testRate + " acquired during tests exceeds tolerance fo taget " + targetRate);
 
     }
-
 
 }
