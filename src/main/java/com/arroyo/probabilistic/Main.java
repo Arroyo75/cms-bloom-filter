@@ -10,11 +10,12 @@ public class Main {
         HashFunction seed1 = HashFunctions.seeded(23);
         HashFunction seed2 = HashFunctions.seeded(31);
 
-        BloomFilter bf = BloomFilter.create(1, 1, seed1, seed2);
+        BloomFilter bf = BloomFilter.create(5000, 10, seed1, seed2);
         System.out.println(bf.add("Bakersfield"));
         System.out.println(bf.mightContain("Walter"));
         System.out.println(bf.mightContain("Baker"));
         System.out.println(bf.mightContain("Bakersfieldday"));
         System.out.println(bf.mightContain("Bakersfield"));
+
     }
 }

@@ -3,6 +3,7 @@ package com.arroyo.probabilistic.bloom;
 import com.arroyo.probabilistic.hash.HashFunction;
 import com.arroyo.probabilistic.hash.HashFunctions;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -19,8 +20,8 @@ public class BloomFilter {
     private final boolean[] bitArray;
     private final int numOfHash;
     private final int arraySize;
-    private final HashFunction h1;
-    private final HashFunction h2;
+    public final HashFunction h1;
+    public final HashFunction h2;
 
     private BloomFilter(int arraySize, int numOfHash) {
         this(arraySize, numOfHash, HashFunctions.primary(), HashFunctions.secondary());
@@ -92,12 +93,29 @@ public class BloomFilter {
      * Avoids needing k truly independent hash functions.
      */
     private int[] bitsFor(String x) {
-        int base = h1.hash(x);
-        int step = h2.hash(x);
+        long base = h1.hash(x);
+        long step = h2.hash(x);
+        if(step == 0) step = 1;
         int[] bits = new int[numOfHash];
         for (int i = 0; i < numOfHash; i++) {
-            bits[i] = Math.floorMod(base + i * step, arraySize);
+            long h = base + (long) i * step;
+            bits[i] = (int) Math.floorMod(h, (long)arraySize);
         }
         return bits;
+    }
+
+    public static int nextPrimeNum(int n) {
+        if (n <= 2) return 2;
+        int possible = (n % 2 == 0) ? n + 1 : n;
+        while (!isPrimeNum(possible)) possible += 2;
+        return possible;
+    }
+
+    public static boolean isPrimeNum(int n) {
+        if (n < 2) return false;
+        for (int i = 2; (long) i * i <= n; i++) {
+            if (n % i == 0) return false;
+        }
+        return true;
     }
 }

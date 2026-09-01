@@ -4,6 +4,9 @@ import com.arroyo.probabilistic.hash.HashFunction;
 import com.arroyo.probabilistic.hash.HashFunctions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BloomFilterTest {
@@ -84,4 +87,36 @@ public class BloomFilterTest {
         bf2.add("Odyssey");
         assertTrue(bf2.mightContain("Odyssey"));
     }
+
+    @Test
+    void falsePositiveRateIsAcceptable() {
+        int n = 5000;
+        double targetRate = 0.01;
+        double ln2 = Math.log(2);
+        int m = (int) Math.ceil(-(n * Math.log(targetRate)) / (ln2 * ln2));
+        m = BloomFilter.nextPrimeNum(m);
+        int k = (int) Math.round(((double) m / n) * ln2);
+
+        BloomFilter bf3 = BloomFilter.create(m, k);
+        for (int i = 0; i < n; i++) {
+            bf3.add(UUID.randomUUID().toString());
+        }
+
+        int fp = 0;
+        int testSize = 7000;
+
+        for(int i = 0; i < testSize; i++) {
+            if(bf3.mightContain(UUID.randomUUID().toString())) {
+                fp++;
+            }
+        }
+
+        double testRate = (double) fp / testSize;
+
+        assertTrue(testRate < targetRate * 2,
+                "False Positive rate " + testRate + " acquired during tests exceeds tolerance fo taget " + targetRate);
+
+    }
+
+
 }
