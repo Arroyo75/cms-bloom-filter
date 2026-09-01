@@ -93,10 +93,8 @@ public class BloomFilterTest {
     void falsePositiveRateIsAcceptable() {
         int n = 5000;
         double targetRate = 0.01;
-        int m = SizingCalculator.optimalM(n, targetRate);
-        int k = SizingCalculator.optimalK(m, n);
 
-        BloomFilter bf3 = BloomFilter.create(m, k);
+        BloomFilter bf3 = BloomFilter.create(n, targetRate);
         for (int i = 0; i < n; i++) {
             bf3.add(UUID.randomUUID().toString());
         }
