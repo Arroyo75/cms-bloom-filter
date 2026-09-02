@@ -1,8 +1,9 @@
 package com.arroyo.probabilistic.bloom;
 
+import com.arroyo.probabilistic.hash.ElementConverter;
+import com.arroyo.probabilistic.hash.ElementConverters;
 import com.arroyo.probabilistic.hash.HashFunction;
 import com.arroyo.probabilistic.hash.HashFunctions;
-import com.arroyo.probabilistic.util.SizingCalculator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class BloomFilterTest {
 
-    private BloomFilter bf;
+    private BloomFilter<String> bf;
 
     @BeforeEach
     void setUp() {
@@ -81,10 +82,11 @@ public class BloomFilterTest {
 
     @Test
     void createOverloadTest() {
+        ElementConverter<String> eC = ElementConverters.stringConverter();
         HashFunction h1 = HashFunctions.seeded(23);
         HashFunction h2 = HashFunctions.seeded(31);
 
-        BloomFilter bf2 = BloomFilter.create(1000, 5, h1, h2);
+        BloomFilter<String> bf2 = BloomFilter.create(1000, 5, eC, h1, h2);
         bf2.add("Odyssey");
         assertTrue(bf2.mightContain("Odyssey"));
     }
@@ -93,10 +95,17 @@ public class BloomFilterTest {
     void falsePositiveRateIsAcceptable() {
         int n = 5000;
         double targetRate = 0.01;
+        BloomFilter<String> bf3 = BloomFilter.create(n, targetRate);
+        List<String> addedElements = new ArrayList<>();
 
-        BloomFilter bf3 = BloomFilter.create(n, targetRate);
         for (int i = 0; i < n; i++) {
-            bf3.add(UUID.randomUUID().toString());
+            String x = UUID.randomUUID().toString();
+            bf3.add(x);
+            addedElements.add(x);
+        }
+
+        for(String x : addedElements) {
+            assertTrue(bf3.mightContain(x), "False negative for: " + x);
         }
 
         int fp = 0;
