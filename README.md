@@ -8,7 +8,7 @@ In progress
 
 # Motivation
 
-Exploring probabilistic data structures for cache-penetration protection and cache limiting, and wanting to understand the underlying math and tradeoffs of this approach. Learning project, will try to make it stand out later.
+Exploring probabilistic data structures for cache-penetration protection and cache limiting, and wanting to understand the underlying math and tradeoffs of this approach.
 
 # Planned features
 
