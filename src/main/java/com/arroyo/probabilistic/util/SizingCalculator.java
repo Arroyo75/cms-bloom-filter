@@ -98,4 +98,12 @@ public class SizingCalculator {
         }
         return true;
     }
+
+    public static int optimalRows(double e) {
+        return (int) Math.ceil(Math.E / e);
+    }
+
+    public static int optimalColumns(double d) {
+        return (int) Math.ceil(Math.log(1/d));
+    }
 }

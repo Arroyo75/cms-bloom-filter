@@ -1,6 +1,7 @@
 package com.arroyo.probabilistic;
 
 import com.arroyo.probabilistic.bloom.BloomFilter;
+import com.arroyo.probabilistic.cms.CountMinSketch;
 import com.arroyo.probabilistic.hash.ElementConverter;
 import com.arroyo.probabilistic.hash.ElementConverters;
 import com.arroyo.probabilistic.hash.HashFunction;
@@ -19,5 +20,20 @@ public class Main {
         System.out.println(bf.mightContain(5));
         System.out.println(bf.mightContain(555));
         System.out.println(bf.mightContain(55));
+        System.out.println(bf.estimatedFalsePositiveRate(1));
+
+        CountMinSketch<Integer> cms = CountMinSketch.create(1000, 7);
+        System.out.println(cms.add(55));
+        System.out.println(cms.add(55));
+        System.out.println(cms.add(13));
+        System.out.println(cms.add(101));
+        System.out.println(cms.add(535));
+        System.out.println(cms.add(777));
+        System.out.println(cms.add(256125));
+        System.out.println(cms.minimalFrequency(53));
+        System.out.println(cms.minimalFrequency(55));
+        System.out.println(cms.minimalFrequency(13));
+        System.out.println(cms.minimalFrequency(54));
+
     }
 }
