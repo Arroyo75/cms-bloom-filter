@@ -4,6 +4,7 @@ import com.arroyo.probabilistic.hash.ElementConverter;
 import com.arroyo.probabilistic.hash.ElementConverters;
 import com.arroyo.probabilistic.hash.HashFunction;
 import com.arroyo.probabilistic.hash.HashFunctions;
+import com.arroyo.probabilistic.util.SizingCalculator;
 
 import java.util.Objects;
 
@@ -27,6 +28,10 @@ public class CountMinSketch<T> {
 
     public static <T> CountMinSketch<T> create(int columns, int rows) {
         return new CountMinSketch<>(columns, rows);
+    }
+
+    public static <T> CountMinSketch<T> create(double epsilon, double delta) {
+        return new CountMinSketch<>(SizingCalculator.optimalColumns(epsilon), SizingCalculator.optimalRows(delta));
     }
 
     public boolean add(T x) {

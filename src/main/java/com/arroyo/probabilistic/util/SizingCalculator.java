@@ -99,11 +99,17 @@ public class SizingCalculator {
         return true;
     }
 
-    public static int optimalRows(double e) {
-        return (int) Math.ceil(Math.E / e);
+    public static int optimalRows(double delta) { //Depth
+        if(delta <= 0 || delta >= 1) {
+            throw new IllegalArgumentException("Delta must be (0, 1)");
+        }
+        return (int) Math.ceil(Math.log(1.0/delta));
     }
 
-    public static int optimalColumns(double d) {
-        return (int) Math.ceil(Math.log(1/d));
+    public static int optimalColumns(double epsilon) { //Width
+        if(epsilon <= 0 || epsilon >= 1) {
+            throw new IllegalArgumentException("Epsilon must be (0, 1)");
+        }
+        return (int) Math.ceil(Math.E / epsilon);
     }
 }
