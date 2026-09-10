@@ -16,6 +16,14 @@ public class CountMinSketch<T> {
     private final HashFunction[] hashFunctions;
 
     private CountMinSketch(int columns, int rows) {
+
+        if(columns <= 0) {
+            throw new IllegalArgumentException("Columns must be at least 1");
+        }
+        if(rows <= 0) {
+            throw new IllegalArgumentException("Rows must be at least 1");
+        }
+
         this.countArray = new int[rows][columns];
         this.columns = columns;
         this.rows = rows;

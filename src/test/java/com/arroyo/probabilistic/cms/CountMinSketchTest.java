@@ -49,6 +49,34 @@ public class CountMinSketchTest {
     }
 
     @Test
+    void repeatedInsertionFrequencyCheck() {
+        cms.add("Stooges");
+        cms.add("Stooges");
+        cms.add("Stooges");
+        assertEquals(3, cms.minimalFrequency("Stooges"));
+    }
+
+    @Test
+    void neverUnderestimatesTrueCount() {
+        CountMinSketch<String> cms2 = CountMinSketch.create(3, 2); // tiny, forces collisions
+        for (int i = 0; i < 100; i++) {
+            cms2.add("target");
+            cms2.add("collider" + i);
+        }
+        assertTrue(cms2.minimalFrequency("target") >= 100);
+    }
+
+    @Test
+    void nonPositiveColumnsThrows() {
+        assertThrows(IllegalArgumentException.class, () -> CountMinSketch.create(0, 5));
+    }
+
+    @Test
+    void nonPositiveRowsThrows() {
+        assertThrows(IllegalArgumentException.class, () -> CountMinSketch.create(1000, 0));
+    }
+
+    @Test
     void insertedNullHandled() {
         assertThrows(NullPointerException.class, () -> cms.add(null));
     }
@@ -58,6 +86,11 @@ public class CountMinSketchTest {
         assertThrows(NullPointerException.class, () -> cms.minimalFrequency(null));
     }
 
-
+    @Test
+    void createOverload() {
+        CountMinSketch<String> cms3 = CountMinSketch.create(0.01, 0.01);
+        cms3.add("Odyssey");
+        assertEquals(1, cms3.minimalFrequency("Odyssey"));
+    }
 
 }
