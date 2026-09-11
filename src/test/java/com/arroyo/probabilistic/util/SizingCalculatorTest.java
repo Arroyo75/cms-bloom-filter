@@ -55,4 +55,16 @@ public class SizingCalculatorTest {
         int m = SizingCalculator.optimalM(3000, 0.01);
         assertTrue(SizingCalculator.isPrimeNum(m));
     }
+
+    @Test
+    void optimalRowsThrowsOnValidation() {
+        assertThrows(IllegalArgumentException.class, () -> SizingCalculator.optimalColumns(1.0));
+        assertThrows(IllegalArgumentException.class, () -> SizingCalculator.optimalColumns(0.0));
+    }
+
+    @Test
+    void optimalColumnsThrowsOnValidation() {
+        assertThrows(IllegalArgumentException.class, () -> SizingCalculator.optimalRows(0.0));
+        assertThrows(IllegalArgumentException.class, () -> SizingCalculator.optimalRows(1.0));
+    }
 }

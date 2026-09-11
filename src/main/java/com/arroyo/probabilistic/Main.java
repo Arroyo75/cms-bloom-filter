@@ -9,31 +9,5 @@ import com.arroyo.probabilistic.hash.HashFunctions;
 
 public class Main {
     static void main(String[] args) {
-
-        ElementConverter<Integer> eC = ElementConverters.standardConverter();
-        HashFunction seed1 = HashFunctions.seeded(23);
-        HashFunction seed2 = HashFunctions.seeded(31);
-
-        BloomFilter<Integer> bf = BloomFilter.create(5000, 10, eC, seed1, seed2);
-        System.out.println(bf.add(55));
-        System.out.println(bf.mightContain(56));
-        System.out.println(bf.mightContain(5));
-        System.out.println(bf.mightContain(555));
-        System.out.println(bf.mightContain(55));
-        System.out.println(bf.estimatedFalsePositiveRate(1));
-
-        CountMinSketch<Integer> cms = CountMinSketch.create(1000, 7);
-        System.out.println(cms.add(55));
-        System.out.println(cms.add(55));
-        System.out.println(cms.add(13));
-        System.out.println(cms.add(101));
-        System.out.println(cms.add(535));
-        System.out.println(cms.add(777));
-        System.out.println(cms.add(256125));
-        System.out.println(cms.minimalFrequency(53));
-        System.out.println(cms.minimalFrequency(55));
-        System.out.println(cms.minimalFrequency(13));
-        System.out.println(cms.minimalFrequency(54));
-
     }
 }

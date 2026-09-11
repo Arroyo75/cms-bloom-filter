@@ -165,4 +165,12 @@ public class BloomFilter<T> {
     public double estimatedFalsePositiveRate(int n) {
         return SizingCalculator.estimatedFalsePositiveRate(arraySize, numOfHash, n);
     }
+
+    /**
+     * Uses in-built BitSet method to return fill percentage of the BitSet.
+     * @return a double representing how much of the BitSet is taken.
+     */
+    public double fillRatio() {
+        return bitArray.cardinality();
+    }
 }

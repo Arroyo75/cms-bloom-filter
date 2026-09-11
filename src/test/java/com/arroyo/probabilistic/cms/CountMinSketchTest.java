@@ -1,7 +1,13 @@
 package com.arroyo.probabilistic.cms;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -91,6 +97,55 @@ public class CountMinSketchTest {
         CountMinSketch<String> cms3 = CountMinSketch.create(0.01, 0.01);
         cms3.add("Odyssey");
         assertEquals(1, cms3.minimalFrequency("Odyssey"));
+    }
+
+    @Test
+    void estimatedCountStaysWithinErrorBound() {
+        double delta = 0.01;
+        double epsilon = 0.01;
+        int n = 5000;
+
+        CountMinSketch<String> cms = CountMinSketch.create(epsilon, delta);
+
+        Map<String, Integer> counts = new HashMap<>();
+        Random random = new Random();
+
+        for (int i = 0; i < n; i++) {
+            String x = UUID.randomUUID().toString();
+            int insertions = random.nextInt(10) + 1; // vary true counts, 1-10
+            for (int j = 0; j < insertions; j++) {
+                cms.add(x);
+            }
+            counts.put(x, insertions);
+        }
+
+        long totalUpdates = counts.values().stream().mapToLong(Integer::longValue).sum();
+        double errorBound = epsilon * totalUpdates;
+
+        int withinBound = 0;
+        int maxOverestimate = 0;
+        long sumOverestimate = 0;
+        for (Map.Entry<String, Integer> entry : counts.entrySet()) {
+            int estimated = cms.minimalFrequency(entry.getKey());
+            int trueCount = entry.getValue();
+            int overestimate = estimated - trueCount;
+            maxOverestimate = Math.max(maxOverestimate, overestimate);
+            sumOverestimate += overestimate;
+
+            assertTrue(estimated >= trueCount,
+                    "Underestimate for " + entry.getKey() + ": true=" + trueCount + " estimated=" + estimated);
+
+            if (estimated - trueCount <= errorBound) {
+                withinBound++;
+            }
+        }
+
+        double fractionWithinBound = (double) withinBound / counts.size();
+        System.out.println("max overestimate: " + maxOverestimate);
+        System.out.println("avg overestimate: " + (double) sumOverestimate / counts.size());
+        System.out.println("errorBound: " + errorBound);
+        assertTrue(fractionWithinBound >= (1 - delta) * 0.9, // some tolerance on the confidence itself
+                "Only " + fractionWithinBound + " of estimates were within the error bound, expected >= " + (1 - delta));
     }
 
 }
