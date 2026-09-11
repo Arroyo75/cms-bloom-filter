@@ -1,6 +1,6 @@
 # cms-bloom-filter
 
-A Java library implementing probabilistic data structures - Bloom Filter and Count-Min Sketch - build from scratch to understand their inner workings, not as a wrapper around an existing implementation.
+A Java library implementing probabilistic data structures - Bloom Filter and Count-Min Sketch - build from scratch as a personal project to understand their inner workings, not as a wrapper around an existing implementation.
 
 # Status
 
