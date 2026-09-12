@@ -10,6 +10,37 @@ import java.util.BitSet;
 import java.util.Objects;
 import java.util.Random;
 
+/**
+ * Stable Bloom filter; a variant of the standard Bloom filter designed
+ * for genuinely unbounded, continuous streams, using fixed memory
+ * forever rather than growing (like {@link ScalableBloomFilter}) or
+ * degrading in accuracy as more elements are inserted.
+ * <p>
+ * <b>Unlike every other filter in this library, this structure does
+ * NOT guarantee an absence of false negatives.</b> An element that was
+ * genuinely added earlier may later report {@code false} from
+ * {@link #mightContain}, if enough subsequent insertions have randomly
+ * decayed the counters it depends on. This is a deliberate
+ * trade-off: rather than growing memory indefinitely to remember every
+ * element ever seen, this filter lets old information decay away
+ * automatically, keeping memory usage fixed regardless of how long the
+ * stream runs.
+ * </p>
+ * On every {@link #add}, {@code P} ({@link #numOfDecrements}) randomly
+ * chosen cells, unrelated to the element being added, are each
+ * decremented by 1 (till 0), making room for new data. The
+ * element's own k hash-derived positions are then set to {@code Max}
+ * ({@link #maxValue}), the highest possible counter value, giving
+ * freshly-inserted (or recently re-inserted) elements the most
+ * resistance to being evicted by future decay. Membership is checked
+ * the same way as {@link CountingBloomFilter}, all k positions must be
+ * nonzero.
+ * <p>
+ * Recommended values for {@code Max} are small (1, 3, 7) per the
+ * original Stable Bloom Filter paper (Deng &amp; Rafiei); larger values
+ * reduce false negatives at the cost of needing proportionally more
+ * cells decremented per insertion.
+ */
 public class StableBloomFilter<T> {
     private final byte[] countArray;
     private final int numOfHash;
@@ -53,10 +84,34 @@ public class StableBloomFilter<T> {
         return new StableBloomFilter<>(m, k, p, max);
     }
 
+    /**
+     * Overloaded factory from above, allows to pass own ElementConverter
+     * and HashFunction implementations.
+     * @param m is a size of the counter array; must be positive
+     * @param k is a number of hash functions used; must be positive
+     * @param p is the number of randomly chosen cells decremented on
+     *          every add; must be positive
+     * @param max is the counter ceiling freshly-inserted positions are
+     *            set to; must be between 1 and 127. Recommended values
+     *            are 1, 3, or 7.
+     * @param eC element converter that converts type T into String in order
+     *           to make it hashable
+     * @param h1 hash function used as a base
+     * @param h2 hash function used as a step (should not be the same as above)
+     * @return new instance of StableBloomFilter
+     */
     public static <T> StableBloomFilter<T> create(int m, int k, int p, byte max, ElementConverter<T> eC, HashFunction h1, HashFunction h2) {
         return new StableBloomFilter<>(m, k, p, max, eC, h1, h2);
     }
 
+    /**
+     * Adds an element to the filter. First decrements P randomly chosen
+     * cells by 1 to make room, then sets the element's k
+     * hash-derived positions to Max.
+     *
+     * @param x the element to add; must not be null
+     * @throws NullPointerException if x is null
+     */
     public boolean add(T x) {
         Objects.requireNonNull(x, "Element must not be null");
         for(int i = 0; i < numOfDecrements; i++) {
@@ -72,6 +127,14 @@ public class StableBloomFilter<T> {
         return true;
     }
 
+    /**
+     * Checks for an element in the filter. May return a false negative
+     * for an added element whose positions have since decayed
+     * to 0 through unrelated calls to {@link #add}.
+     *
+     * @param x the element to check for; must not be null
+     * @throws NullPointerException if x is null
+     */
     public boolean mightContain(T x) {
         Objects.requireNonNull(x, "Element must not be null");
         int[] h = bitsFor(x);
@@ -82,6 +145,12 @@ public class StableBloomFilter<T> {
         }
         return true;
     }
+
+    /**
+     * Derives k index positions from two independent hash values using the
+     * Kirsch-Mitzenmacher optimization: h_i(x) = h1(x) + i * h2(x).
+     * Avoids needing k truly independent hash functions.
+     */
 
     private int[] bitsFor(T x) {
         String s = elementConverter.toHashable(x);
