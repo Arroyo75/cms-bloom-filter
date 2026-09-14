@@ -104,13 +104,12 @@ public class StableBloomFilterTest {
 
     @Test
     void decayRefreshmentTest() {
-        //small array, aggressive decrements, to force fast decay.
-        StableBloomFilter<String> smallSbf = StableBloomFilter.create(50, 3, 20, (byte) 3);
+        StableBloomFilter<String> smallSbf = StableBloomFilter.create(50, 3, 5, (byte) 3);
 
         smallSbf.add("persistent");
 
         for (int i = 0; i < 500; i++) {
-            if (i % 10 == 0) {
+            if (i % 5 == 0) {
                 smallSbf.add("persistent");
             } else {
                 smallSbf.add(UUID.randomUUID().toString());
