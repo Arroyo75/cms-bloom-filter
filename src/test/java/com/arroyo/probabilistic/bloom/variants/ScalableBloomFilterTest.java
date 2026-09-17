@@ -85,28 +85,24 @@ public class ScalableBloomFilterTest {
     }
 
     @Test
-    void growingPastFirstFilterCapacityStillFindsEarlyElements() {
-        // Small initial capacity so we can force multiple generations
-        // in the chain without inserting huge numbers of elements.
+    void findingFirstOfManyFilterElements() {
         ScalableBloomFilter<String> smallSbf = ScalableBloomFilter.create(100, 0.01);
 
         List<String> elements = new ArrayList<>();
-        // Insert well past 3 generations worth of capacity.
         for (int i = 0; i < 350; i++) {
             String x = UUID.randomUUID().toString();
             smallSbf.add(x);
             elements.add(x);
         }
 
-        // Elements from every generation - including the very first,
-        // long-since-full filter - must still be found.
+
         for (String x : elements) {
             assertTrue(smallSbf.mightContain(x), "False negative for: " + x);
         }
     }
 
     @Test
-    void falsePositiveRateStaysReasonableAcrossGrowth() {
+    void falsePositiveRateIsAcceptable() {
         int initialCapacity = 500;
         double targetRate = 0.01;
         double tighteningRatio = 0.9;

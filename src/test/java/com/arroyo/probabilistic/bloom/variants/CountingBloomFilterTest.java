@@ -107,7 +107,7 @@ public class CountingBloomFilterTest {
     }
 
     @Test
-    void deletingOneElementDoesNotBreakAnotherStillPresent() {
+    void deletingElementDoesNotChangeOther() {
         CountingBloomFilter<String> smallCbf = CountingBloomFilter.create(20, 3);
 
         List<String> elements = new ArrayList<>();
